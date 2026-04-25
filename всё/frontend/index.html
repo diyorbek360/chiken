@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Золотые яйца 🐔</title>
+  <link rel="stylesheet" href="css/main.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+<div id="app">
+
+  <!-- ═══════════════════════════════════════
+       LOADING SCREEN
+  ═══════════════════════════════════════ -->
+  <div id="screen-loading" class="screen active">
+    <div class="loading-egg">🥚</div>
+    <div class="loading-title">Золотые яйца</div>
+    <div class="loading-dots">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       GAME SCREEN (Main Farm)
+  ═══════════════════════════════════════ -->
+  <div id="screen-game" class="screen">
+
+    <!-- Clouds -->
+    <div class="cloud" style="top:8%;animation-duration:28s;animation-delay:0s">☁️</div>
+    <div class="cloud" style="top:14%;animation-duration:22s;animation-delay:-10s;font-size:28px">☁️</div>
+    <div class="cloud" style="top:4%;animation-duration:35s;animation-delay:-20s;font-size:32px">☁️</div>
+
+    <!-- ── HUD Top ── -->
+    <div class="hud-top">
+
+      <!-- Feed bags (click to go to market) -->
+      <div class="hud-bag" onclick="onHudBagsClick()">
+        <span class="bag-icon">🌾</span>
+        <span id="hud-bags">00</span>
+      </div>
+
+      <!-- Center: add button + super chickens + chickens + eggs -->
+      <div class="hud-center">
+        <div class="hud-add-btn" onclick="onNavMarket()">+</div>
+        <div class="hud-center-item">
+          <span class="hud-icon">🦅</span>
+          <span id="hud-super">0</span>
+        </div>
+        <div class="hud-divider"></div>
+        <div class="hud-center-item">
+          <span class="hud-icon">🐔</span>
+          <span id="hud-chickens">1</span>
+        </div>
+        <div class="hud-divider"></div>
+        <div class="hud-center-item">
+          <span class="hud-icon">🥚</span>
+          <span id="hud-eggs-total">0</span>
+        </div>
+      </div>
+
+      <!-- Day + Balance -->
+      <div class="hud-day" onclick="onHudBalanceClick()">
+        <div class="day-num" id="hud-day-num">1</div>
+        <div>День</div>
+        <div id="hud-balance">0.00$</div>
+      </div>
+    </div>
+
+    <!-- ── Farm Scene ── -->
+    <div class="farm-scene">
+
+      <!-- Feeder (left side) -->
+      <div class="feeder" onclick="onFeedClick()">
+        <div class="feeder-structure">
+          <div class="feeder-roof"></div>
+          <div class="feeder-body">
+            <div class="feeder-fill" style="height:0%"></div>
+            <div class="feeder-glass"></div>
+            <!-- Auto feeder gear indicator -->
+            <div class="auto-feeder-gear">⚙️</div>
+          </div>
+        </div>
+        <div class="feeder-btns">
+          <button class="feeder-btn feeder-btn-plus" onclick="event.stopPropagation();onFeedClick()">+</button>
+          <button class="feeder-btn feeder-btn-max" onclick="event.stopPropagation();onFeedMax()">MAX</button>
+        </div>
+        <div class="feeder-label">Кормушка</div>
+      </div>
+
+      <!-- Chickens area -->
+      <div id="chickens-area" class="chickens-area"></div>
+
+      <!-- Market Building (right top) -->
+      <div class="market-building" onclick="onNavMarket()">
+        <div class="market-roof">
+          <div class="market-roof-peak"></div>
+        </div>
+        <div class="market-body">
+          <div class="market-sign">РЫНОК</div>
+          <div class="market-display">🌾🐔💰</div>
+        </div>
+      </div>
+
+      <!-- Dog House (right bottom) -->
+      <div class="dog-house" onclick="onNavMarket()">
+        <div class="dog-icon">🐕</div>
+        <div class="dog-house-roof"></div>
+        <div class="dog-house-body">
+          <div class="dog-house-door"></div>
+        </div>
+        <div class="dog-add-btn" onclick="event.stopPropagation();onNavMarket()">+</div>
+      </div>
+
+      <!-- Trader (hidden until day 11) -->
+      <div id="trader-on-farm" style="display:none;position:absolute;bottom:20px;left:50%;transform:translateX(-50%);font-size:60px;cursor:pointer;filter:drop-shadow(4px 6px 10px rgba(0,0,0,0.4));animation:merchantBob 3s ease-in-out infinite;" onclick="onOpenTrader()">🧑‍🌾</div>
+
+    </div>
+
+    <!-- ── Egg Tray ── -->
+    <div id="egg-tray" class="egg-tray" onclick="onCollectEggs()"></div>
+
+    <!-- ── Bottom Nav ── -->
+    <div class="bottom-nav">
+      <div class="bottom-hay"></div>
+      <div class="nav-buttons">
+
+        <div class="nav-btn" onclick="onNavMarket()">
+          <div class="nav-btn-icon market">🏪</div>
+          <span class="nav-btn-label" id="nav-market-label">РЫНОК</span>
+        </div>
+
+        <div class="nav-btn" onclick="onNavLeaders()">
+          <div class="nav-btn-icon leaders">👑</div>
+          <span class="nav-btn-label" id="nav-leaders-label">ЛИДЕРЫ</span>
+        </div>
+
+        <div class="nav-btn" onclick="onNavSettings()">
+          <div class="nav-btn-icon settings">⚙️</div>
+          <span class="nav-btn-label" id="nav-settings-label">НАСТРОЙКИ</span>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /screen-game -->
+
+
+  <!-- ═══════════════════════════════════════
+       MARKET SCREEN
+  ═══════════════════════════════════════ -->
+  <div id="screen-market" class="screen">
+
+    <!-- Clouds (same bg feel) -->
+    <div class="cloud" style="top:3%;animation-duration:26s;animation-delay:-5s">☁️</div>
+
+    <!-- HUD carried over -->
+    <div class="hud-top">
+      <div class="hud-bag" onclick="onBackToGame()">🌾 <span id="hud-bags-m">00</span></div>
+      <div class="hud-center" style="font-size:13px;padding:4px 10px;">
+        <div class="hud-center-item"><span>🦅</span><span id="hud-super-m">0</span></div>
+        <div class="hud-divider"></div>
+        <div class="hud-center-item"><span>🐔</span><span id="hud-chk-m">1</span></div>
+        <div class="hud-divider"></div>
+        <div class="hud-center-item"><span>🥚</span><span id="hud-eggs-m">0</span></div>
+      </div>
+      <div class="hud-day" onclick="onHudBalanceClick()">
+        <div id="hud-day-m">1</div><div>День</div><div id="hud-bal-m">0$</div>
+      </div>
+    </div>
+
+    <div class="market-overlay">
+      <!-- Panel with roof -->
+      <div class="market-panel">
+        <div class="market-panel-roof">
+          <div class="market-panel-roof-peak"></div>
+        </div>
+        <button class="market-close-btn" onclick="onCloseMarket()">✕</button>
+
+        <div class="market-panel-title">РЫНОК</div>
+
+        <!-- Items grid -->
+        <div class="shop-grid" id="shop-grid"></div>
+
+        <!-- Total area -->
+        <div class="market-total-area" id="market-total-area">
+          <span style="color:#aaa;font-size:13px;">Выберите товары...</span>
+        </div>
+
+        <!-- Pay button -->
+        <button class="pay-btn" onclick="onMarketPay()">ОПЛАТИТЬ</button>
+      </div>
+    </div>
+
+    <!-- Merchant character -->
+    <div class="market-merchant">🧑‍🌾</div>
+
+    <!-- Bottom nav -->
+    <div class="bottom-nav">
+      <div class="bottom-hay"></div>
+      <div class="nav-buttons">
+        <div class="nav-btn" onclick="onNavMarket()"><div class="nav-btn-icon market">🏪</div><span class="nav-btn-label">РЫНОК</span></div>
+        <div class="nav-btn" onclick="onNavLeaders()"><div class="nav-btn-icon leaders">👑</div><span class="nav-btn-label">ЛИДЕРЫ</span></div>
+        <div class="nav-btn" onclick="onNavSettings()"><div class="nav-btn-icon settings">⚙️</div><span class="nav-btn-label">НАСТРОЙКИ</span></div>
+      </div>
+    </div>
+
+  </div><!-- /screen-market -->
+
+
+  <!-- ═══════════════════════════════════════
+       LEADERS SCREEN
+  ═══════════════════════════════════════ -->
+  <div id="screen-leaders" class="screen">
+
+    <div class="hud-top">
+      <div class="hud-bag" onclick="onBackToGame()">← Назад</div>
+      <div class="hud-day"><div id="hud-day-l">1</div><div>День</div><div id="hud-bal-l">0$</div></div>
+    </div>
+
+    <div class="leaders-scroll-container">
+      <div class="scroll-bg">
+        <div class="scroll-crown">👑</div>
+
+        <div class="scroll-title">СПИСОК ЛИДЕРОВ</div>
+        <div class="leaders-list" id="leaders-list"></div>
+
+        <div class="leaders-section-title">СПИСОК ИГРОКОВ 🔄</div>
+        <div class="leaders-list" id="players-list"></div>
+      </div>
+    </div>
+
+    <!-- Merchant -->
+    <div style="position:absolute;bottom:130px;left:-10px;font-size:70px;filter:drop-shadow(4px 6px 10px rgba(0,0,0,0.4));animation:merchantBob 3s ease-in-out infinite;pointer-events:none">🧑‍🌾</div>
+
+    <div class="bottom-nav">
+      <div class="bottom-hay"></div>
+      <div class="nav-buttons">
+        <div class="nav-btn" onclick="onNavMarket()"><div class="nav-btn-icon market">🏪</div><span class="nav-btn-label">РЫНОК</span></div>
+        <div class="nav-btn" onclick="onNavLeaders()"><div class="nav-btn-icon leaders">👑</div><span class="nav-btn-label">ЛИДЕРЫ</span></div>
+        <div class="nav-btn" onclick="onNavSettings()"><div class="nav-btn-icon settings">⚙️</div><span class="nav-btn-label">НАСТРОЙКИ</span></div>
+      </div>
+    </div>
+
+  </div><!-- /screen-leaders -->
+
+
+  <!-- ═══════════════════════════════════════
+       SETTINGS SCREEN
+  ═══════════════════════════════════════ -->
+  <div id="screen-settings" class="screen">
+
+    <div class="hud-top">
+      <div class="hud-bag" onclick="onBackToGame()">← Назад</div>
+      <div class="hud-day"><div id="hud-day-s">1</div><div>День</div><div id="hud-bal-s">0$</div></div>
+    </div>
+
+    <div class="settings-panel">
+      <div class="settings-title-bar">
+        <div class="settings-title-text">
+          <span class="settings-gear">⚙️</span> НАСТРОЙКИ <span class="settings-gear">⚙️</span>
+        </div>
+        <div class="settings-close" onclick="onBackToGame()">✕</div>
+      </div>
+
+      <div class="settings-body">
+
+        <!-- Top row: auth + language -->
+        <div class="settings-top-row">
+          <button class="auth-btn">Авторизация</button>
+          <select class="lang-select" id="settings-lang" onchange="onLangChange(this)">
+            <option value="ru">🇷🇺 рус</option>
+            <option value="en">🇬🇧 eng</option>
+            <option value="zh">🇨🇳 中文</option>
+            <option value="hi">🇮🇳 हिं</option>
+            <option value="es">🇪🇸 esp</option>
+            <option value="fr">🇫🇷 fra</option>
+            <option value="ar">🇸🇦 عرب</option>
+            <option value="bn">🇧🇩 বাং</option>
+            <option value="pt">🇧🇷 por</option>
+            <option value="ur">🇵🇰 اردو</option>
+          </select>
+        </div>
+
+        <!-- Nickname -->
+        <div class="settings-row">
+          <div class="settings-label">Ник:</div>
+          <input class="settings-input" id="settings-nickname" type="text" placeholder="Ваш никнейм" maxlength="32" onblur="onSaveNickname()">
+        </div>
+
+        <!-- TON Wallet -->
+        <div class="settings-row">
+          <div class="settings-label">Номер <span style="color:#0098EA;font-weight:800;">ToN</span> кошелька</div>
+          <input class="settings-input" id="settings-wallet" type="text" placeholder="UQ..." onblur="onSaveWallet()">
+        </div>
+
+        <!-- Withdraw -->
+        <div class="settings-row">
+          <div class="settings-label">Вывести заработанные с урожая деньги?</div>
+          <div class="withdraw-row">
+            <div class="withdraw-amount-display" id="settings-balance">0.00$</div>
+            <button class="withdraw-yes-btn" onclick="onRequestWithdraw()">ДА</button>
+          </div>
+        </div>
+
+        <!-- Referral -->
+        <div class="settings-row">
+          <div class="settings-label">Пригласить друга</div>
+          <div class="invite-row">
+            <div class="invite-link-display" id="settings-referral-link">https://t.me/...</div>
+            <button class="copy-btn" onclick="onCopyReferralLink()">📋</button>
+          </div>
+          <div class="settings-label" style="margin-top:6px;">
+            Количество приглашённых друзей <span id="settings-referral-count">0</span>
+          </div>
+        </div>
+
+        <!-- Withdrawal history -->
+        <div class="history-title">ИСТОРИЯ ВЫВОДОВ</div>
+        <div id="withdraw-history"></div>
+
+      </div>
+    </div>
+
+    <!-- Merchant at bottom -->
+    <div style="position:absolute;bottom:128px;left:-8px;font-size:65px;filter:drop-shadow(4px 6px 10px rgba(0,0,0,0.4));animation:merchantBob 3s ease-in-out infinite;pointer-events:none">🧑‍🌾</div>
+
+    <div class="bottom-nav">
+      <div class="bottom-hay"></div>
+      <div class="nav-buttons">
+        <div class="nav-btn" onclick="onNavMarket()"><div class="nav-btn-icon market">🏪</div><span class="nav-btn-label">РЫНОК</span></div>
+        <div class="nav-btn" onclick="onNavLeaders()"><div class="nav-btn-icon leaders">👑</div><span class="nav-btn-label">ЛИДЕРЫ</span></div>
+        <div class="nav-btn" onclick="onNavSettings()"><div class="nav-btn-icon settings">⚙️</div><span class="nav-btn-label">НАСТРОЙКИ</span></div>
+      </div>
+    </div>
+
+  </div><!-- /screen-settings -->
+
+
+  <!-- ═══════════════════════════════════════
+       TUTORIAL OVERLAY
+  ═══════════════════════════════════════ -->
+  <div id="tutorial-overlay" style="display:none;position:fixed;inset:0;z-index:200;pointer-events:none;">
+    <div id="tutorial-highlight" class="tutorial-highlight"></div>
+    <div id="tutorial-hand" class="tutorial-hand" style="display:none;">👆</div>
+    <div id="tutorial-speech" class="tutorial-speech" onclick="onTutorialNext()" style="pointer-events:all;z-index:202;position:fixed;bottom:160px;left:16px;right:16px;background:white;border:3px solid #8B5E3C;border-radius:16px;padding:16px;font-size:15px;font-weight:600;color:#3D2B1F;line-height:1.5;box-shadow:0 6px 20px rgba(0,0,0,0.4);white-space:pre-line;cursor:pointer;">
+      Добро пожаловать!
+      <div style="margin-top:8px;font-size:12px;color:#888;font-weight:700;text-align:right;">Нажми для продолжения →</div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════
+       POPUPS
+  ═══════════════════════════════════════ -->
+
+  <!-- Generic Popup -->
+  <div id="popup-generic" class="popup-overlay hidden">
+    <div class="popup-box">
+      <span id="popup-generic-emoji" class="popup-emoji"></span>
+      <div id="popup-generic-title" class="popup-title"></div>
+      <div id="popup-generic-body" class="popup-body"></div>
+      <div id="popup-generic-btns" class="popup-btns"></div>
+    </div>
+  </div>
+
+  <!-- Item Info Popup -->
+  <div id="popup-item-info" class="popup-overlay hidden" onclick="onClosePopup('popup-item-info')">
+    <div class="popup-box" onclick="event.stopPropagation()">
+      <span id="popup-item-info-emoji" class="popup-emoji">🐔</span>
+      <div id="popup-item-info-title" class="popup-title"></div>
+      <div id="popup-item-info-body" class="popup-body"></div>
+      <div class="popup-btns">
+        <button class="popup-btn popup-btn-secondary" onclick="onClosePopup('popup-item-info')">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trader Popup -->
+  <div id="popup-trader" class="popup-overlay hidden">
+    <div class="popup-box trader-popup" onclick="event.stopPropagation()">
+      <span class="trader-emoji">🧑‍🌾</span>
+      <div class="popup-title">Торговец прибыл!</div>
+      <div class="popup-body">Выберите предложение:</div>
+
+      <div class="trader-options">
+        <!-- Buy chicken with discount -->
+        <div class="trader-option" onclick="onTraderBuyChicken()">
+          <div class="trader-option-emoji">🐔</div>
+          <div class="trader-option-label">купить со<br><span class="trader-discount">скидкой 20%</span></div>
+          <div class="trader-option-price" id="trader-chicken-price">0.80$</div>
+        </div>
+
+        <div class="trader-or">ИЛИ</div>
+
+        <!-- Withdraw -->
+        <div class="trader-option" onclick="onTraderWithdraw()">
+          <div class="trader-option-emoji">💰</div>
+          <div class="trader-option-label">вывести деньги<br>на кошелек</div>
+          <div class="trader-option-price" id="trader-withdraw-amount">0$</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Player Farm Popup (steal) -->
+  <div id="popup-player-farm" class="popup-overlay hidden" onclick="onClosePopup('popup-player-farm')">
+    <div class="popup-box player-farm-popup" onclick="event.stopPropagation()">
+      <span class="popup-emoji">🏡</span>
+      <div class="popup-title" id="pfarm-name">Ферма игрока</div>
+      <div class="popup-body">
+        <span id="pfarm-chickens"></span><br>
+        <span id="pfarm-day"></span><br>
+        <span id="pfarm-dog" style="color:#E05010;font-weight:700;"></span>
+      </div>
+      <button id="pfarm-steal-btn" class="steal-btn">🧤 Украсть яйца</button>
+      <div class="popup-btns" style="margin-top:10px;">
+        <button class="popup-btn popup-btn-secondary" onclick="onClosePopup('popup-player-farm')">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div id="toast-container" class="toast-container"></div>
+
+</div><!-- /app -->
+
+<!-- Sync secondary HUDs -->
+<script>
+  // Keep all HUD instances in sync
+  const _origUpdateHUD = null;
+  function syncAllHUDs() {
+    const s = window.game?.state;
+    if (!s) return;
+    ['m','l','s'].forEach(suffix => {
+      const bags = document.getElementById(`hud-bags-${suffix}`);
+      if (bags) bags.textContent = String(s.feed_bags).padStart(2,'0');
+      const day = document.getElementById(`hud-day-${suffix}`);
+      if (day) day.textContent = s.game_day;
+      const bal = document.getElementById(`hud-bal-${suffix}`);
+      if (bal) bal.textContent = `${s.balance_usd.toFixed(2)}$`;
+      const chk = document.getElementById(`hud-chk-${suffix}`);
+      if (chk) chk.textContent = s.chickens;
+      const sup = document.getElementById(`hud-super-${suffix}`);
+      if (sup) sup.textContent = s.super_chickens;
+    });
+  }
+  setInterval(syncAllHUDs, 2000);
+</script>
+
+<script src="js/i18n.js"></script>
+<script src="js/api.js"></script>
+<script src="js/game.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
